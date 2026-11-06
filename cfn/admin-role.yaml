@@ -1,0 +1,41 @@
+# このファイルは npm run cfn で生成しています。手で直さず、lib/ と bin/settings.ts を直して作り直します。
+# CloudFormation で直接デプロイするなら、example- で始まる値などを自分の値に替えます（README の「差し替える値」）。
+Description: Administrator role
+Resources:
+  AdminRoleB15CDE94:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Condition:
+              Bool:
+                aws:MultiFactorAuthPresent: "true"
+              NumericLessThan:
+                aws:MultiFactorAuthAge: "3600"
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::Sub: arn:${AWS::Partition}:iam::${AWS::AccountId}:user/example-signin-user
+          - Action: sts:AssumeRole
+            Condition:
+              Bool:
+                aws:MultiFactorAuthPresent: "true"
+              NumericLessThan:
+                aws:MultiFactorAuthAge: "3600"
+            Effect: Allow
+            Principal:
+              AWS:
+                - Fn::Sub: arn:${AWS::Partition}:iam::${AWS::AccountId}:user/bg-member1
+                - Fn::Sub: arn:${AWS::Partition}:iam::${AWS::AccountId}:user/bg-member2
+            Sid: AllowBreakGlassUsersToAssume
+        Version: 2012-10-17
+      Description: Administrator role assumed by named IAM users with MFA
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/AdministratorAccess
+      MaxSessionDuration: 3600
+      RoleName: human-account-admin

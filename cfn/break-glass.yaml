@@ -1,0 +1,47 @@
+# このファイルは npm run cfn で生成しています。手で直さず、lib/ と bin/settings.ts を直して作り直します。
+# CloudFormation で直接デプロイするなら、example- で始まる値などを自分の値に替えます（README の「差し替える値」）。
+Description: Break-glass IAM users and group
+Resources:
+  BreakGlassGroupC67E0B8E:
+    Type: AWS::IAM::Group
+    Properties:
+      GroupName: break-glass
+  BreakGlassPolicy88954D29:
+    Type: AWS::IAM::Policy
+    Properties:
+      Groups:
+        - Ref: BreakGlassGroupC67E0B8E
+      PolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Resource:
+              Fn::Sub: arn:${AWS::Partition}:iam::${AWS::AccountId}:role/human-account-admin
+            Sid: AllowAssumeAdminRole
+          - Action:
+              - iam:ChangePassword
+              - iam:CreateVirtualMFADevice
+              - iam:DeactivateMFADevice
+              - iam:EnableMFADevice
+              - iam:GetUser
+              - iam:ListMFADevices
+              - iam:ResyncMFADevice
+            Effect: Allow
+            Resource:
+              - Fn::Sub: arn:${AWS::Partition}:iam::${AWS::AccountId}:user/${!aws:username}
+              - Fn::Sub: arn:${AWS::Partition}:iam::${AWS::AccountId}:mfa/${!aws:username}
+            Sid: AllowSelfManageMFAandPassword
+        Version: 2012-10-17
+      PolicyName: BreakGlassSelfManageAndAssume
+  BreakGlassUserbgmember1CD95532B:
+    Type: AWS::IAM::User
+    Properties:
+      Groups:
+        - Ref: BreakGlassGroupC67E0B8E
+      UserName: bg-member1
+  BreakGlassUserbgmember28FF8CBC5:
+    Type: AWS::IAM::User
+    Properties:
+      Groups:
+        - Ref: BreakGlassGroupC67E0B8E
+      UserName: bg-member2

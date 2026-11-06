@@ -1,0 +1,30 @@
+{
+  "name": "aws-iam-v2-support",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AWSの薄い本1 IAMのマニアックな話 改訂第2版 の職務別テンプレ集",
+  "license": "MIT-0",
+  "dependencies": {
+    "aws-cdk-lib": "2.275.0",
+    "constructs": "10.8.1"
+  },
+  "devDependencies": {
+    "@swc/core": "1.16.22",
+    "@swc/jest": "0.2.39",
+    "@types/jest": "30.0.0",
+    "@types/node": "24.19.2",
+    "aws-cdk": "2.1148.0",
+    "jest": "30.5.2",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2",
+    "yaml": "2.9.1"
+  },
+  "scripts": {
+    "test": "jest",
+    "typecheck": "tsc --noEmit",
+    "synth": "cdk synth --quiet",
+    "cfn": "cdk synth --quiet && tsx scripts/export-cfn.ts",
+    "validate": "tsx scripts/validate-policies.ts",
+    "cdk": "cdk"
+  }
+}

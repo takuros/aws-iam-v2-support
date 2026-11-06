@@ -1,0 +1,68 @@
+# このファイルは npm run cfn で生成しています。手で直さず、lib/ と bin/settings.ts を直して作り直します。
+# CloudFormation で直接デプロイするなら、example- で始まる値などを自分の値に替えます（README の「差し替える値」）。
+Description: Notification of break-glass sign-in
+Resources:
+  NotificationTopicC6E25629:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: Break-glass sign-in
+  NotificationTopicPolicy71FCD286:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: sns:Publish
+            Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+            Resource:
+              Ref: NotificationTopicC6E25629
+            Sid: "0"
+        Version: 2012-10-17
+      Topics:
+        - Ref: NotificationTopicC6E25629
+  NotificationConsoleLoginRuleCF53C136:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Successful console sign-in by a break-glass user
+      EventPattern:
+        detail:
+          eventSource:
+            - signin.amazonaws.com
+          eventName:
+            - ConsoleLogin
+          userIdentity:
+            arn:
+              - wildcard: "*:user/bg-*"
+          responseElements:
+            ConsoleLogin:
+              - Success
+      State: ENABLED_WITH_ALL_CLOUDTRAIL_MANAGEMENT_EVENTS
+      Targets:
+        - Arn:
+            Ref: NotificationTopicC6E25629
+          Id: Target0
+  NotificationAwsLoginRuleA5E7012C:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: aws login by a break-glass user
+      EventPattern:
+        detail:
+          eventSource:
+            - signin.amazonaws.com
+          eventName:
+            - AuthorizeOAuth2Access
+            - CreateOAuth2Token
+          userIdentity:
+            arn:
+              - wildcard: "*:user/bg-*"
+      State: ENABLED_WITH_ALL_CLOUDTRAIL_MANAGEMENT_EVENTS
+      Targets:
+        - Arn:
+            Ref: NotificationTopicC6E25629
+          Id: Target0
+Outputs:
+  NotificationTopicArn580A2840:
+    Description: Subscribe everyone who must be notified
+    Value:
+      Ref: NotificationTopicC6E25629

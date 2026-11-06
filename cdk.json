@@ -1,0 +1,9 @@
+{
+  "app": "npx tsx bin/app.ts",
+  "versionReporting": false,
+  "pathMetadata": false,
+  "assetMetadata": false,
+  "watch": {
+    "include": ["bin/**", "lib/**"]
+  }
+}

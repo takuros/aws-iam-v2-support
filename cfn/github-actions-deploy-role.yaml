@@ -1,0 +1,65 @@
+# このファイルは npm run cfn で生成しています。手で直さず、lib/ と bin/settings.ts を直して作り直します。
+# CloudFormation で直接デプロイするなら、example- で始まる値などを自分の値に替えます（README の「差し替える値」）。
+Description: GitHub Actions deploy role
+Resources:
+  GitHubDeployGitHubOidcProvider090BC05C:
+    Type: AWS::IAM::OIDCProvider
+    Properties:
+      ClientIdList:
+        - sts.amazonaws.com
+      Url: https://token.actions.githubusercontent.com
+  GitHubDeployRoleC7AD0BAA:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+              StringLike:
+                token.actions.githubusercontent.com:sub:
+                  - repo:my-org/my-repo:ref:refs/heads/main
+            Effect: Allow
+            Principal:
+              Federated:
+                Ref: GitHubDeployGitHubOidcProvider090BC05C
+        Version: 2012-10-17
+      Description: Deploy role for GitHub Actions via OIDC
+      MaxSessionDuration: 3600
+      RoleName: ci-deploy-readwrite
+  GitHubDeployRoleDefaultPolicyA4D87868:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: s3:ListBucket
+            Effect: Allow
+            Resource:
+              Fn::Sub: arn:${AWS::Partition}:s3:::example-deploy-bucket
+            Sid: AllowListDeployBucket
+          - Action: s3:PutObject
+            Effect: Allow
+            Resource:
+              Fn::Sub: arn:${AWS::Partition}:s3:::example-deploy-bucket/*
+            Sid: AllowPutDeployObjects
+          - Action: lambda:UpdateFunctionCode
+            Effect: Allow
+            Resource:
+              Fn::Sub: arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:example-app-*
+            Sid: AllowUpdateFunctionCode
+          - Action:
+              - cloudformation:CreateChangeSet
+              - cloudformation:DescribeChangeSet
+              - cloudformation:DescribeStackEvents
+              - cloudformation:DescribeStacks
+              - cloudformation:ExecuteChangeSet
+              - cloudformation:GetTemplate
+            Effect: Allow
+            Resource:
+              Fn::Sub: arn:${AWS::Partition}:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/example-app-*/*
+            Sid: AllowUpdateStacks
+        Version: 2012-10-17
+      PolicyName: GitHubDeployRoleDefaultPolicyA4D87868
+      Roles:
+        - Ref: GitHubDeployRoleC7AD0BAA
