@@ -235,3 +235,9 @@ $ （AI エージェントの起動コマンド）
 ## 正誤表とフィードバック
 
 誤植や事実誤認の報告、改訂のアイデアは [Issue](https://github.com/takuros/aws-iam-v2-support/issues) でお知らせください。
+
+### 正誤表
+
+| 箇所 | 内容 |
+|---|---|
+| 6.3、6.6（`role/agent-*` と path） | 6.3 のとおり環境を path で表すと、`role/dev/agent-x` のような IAM ロールは 6.6 の `role/agent-*` に一致しません。path を使う場合は、`role/*/agent-*` のように path を含めて指定するか、AI 専用の IAM ロールは path なしで作ってください。 |
